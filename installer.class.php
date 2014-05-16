@@ -701,18 +701,18 @@ class IWP_MMB_Installer extends IWP_MMB_Core
             }
         }
         }
-        
-        
+
+
         return $upgrade_themes;
     }
-    
+
     function get($args)
     {
         if (empty($args))
             return false;
-        
+
         //Args: $items('plugins,'themes'), $type (active || inactive), $search(name string)
-        
+
         $return = array();
         if (is_array($args['items']) && in_array('plugins', $args['items'])) {
             $return['plugins'] = $this->get_plugins($args);
@@ -720,17 +720,17 @@ class IWP_MMB_Installer extends IWP_MMB_Core
         if (is_array($args['items']) && in_array('themes', $args['items'])) {
             $return['themes'] = $this->get_themes($args);
         }
-        
+
         return $return;
     }
-    
+
     function get_plugins($args)
     {
         if (empty($args))
             return false;
-        
+
         extract($args);
-        
+
         if (!function_exists('get_plugins')) {
             include_once(ABSPATH . 'wp-admin/includes/plugin.php');
         }
@@ -743,7 +743,7 @@ class IWP_MMB_Installer extends IWP_MMB_Core
             $activated_plugins = get_option('active_plugins');
             if (!$activated_plugins)
                 $activated_plugins = array();
-            
+
             $br_a = 0;
             $br_i = 0;
             foreach ($all_plugins as $path => $plugin) {
@@ -751,26 +751,26 @@ class IWP_MMB_Installer extends IWP_MMB_Core
                     if (in_array($path, $activated_plugins)) {
                         $plugins['active'][$br_a]['path'] = $path;
                         $plugins['active'][$br_a]['name'] = strip_tags($plugin['Name']);
-						$plugins['active'][$br_a]['version'] = $plugin['Version'];
+                        $plugins['active'][$br_a]['version'] = $plugin['Version'];
                         $br_a++;
                     }
-                    
+
                     if (!in_array($path, $activated_plugins)) {
                         $plugins['inactive'][$br_i]['path'] = $path;
                         $plugins['inactive'][$br_i]['name'] = strip_tags($plugin['Name']);
-						$plugins['inactive'][$br_i]['version'] = $plugin['Version'];
+                        $plugins['inactive'][$br_i]['version'] = $plugin['Version'];
                         $br_i++;
                     }
-                    
+
                 }
-                
+
                 if ($search) {
                     foreach ($plugins['active'] as $k => $plugin) {
                         if (!stristr($plugin['name'], $search)) {
                             unset($plugins['active'][$k]);
                         }
                     }
-                    
+
                     foreach ($plugins['inactive'] as $k => $plugin) {
                         if (!stristr($plugin['name'], $search)) {
                             unset($plugins['inactive'][$k]);
@@ -779,116 +779,129 @@ class IWP_MMB_Installer extends IWP_MMB_Core
                 }
             }
         }
-        
+
         return $plugins;
     }
-    
+
+    function get_current_theme_name()
+    {
+        if (function_exists('wp_get_theme')) {
+            $current_theme = wp_get_theme();
+            if ($current_theme->exists()) {
+                return $current_theme->Name;
+            }
+        } else {
+            // WARN: deprecated since 3.4
+            return get_current_theme();
+        }
+    }
+
     function get_themes($args)
     {
         if (empty($args))
             return false;
-        
+
         extract($args);
-        
+
         if (!function_exists('wp_get_themes')) {
             include_once(ABSPATH . WPINC . '/theme.php');
         }
-        if(function_exists('wp_get_themes')){
-	        $all_themes = wp_get_themes();
-	        $themes     = array(
-	            'active' => array(),
-	            'inactive' => array()
-	        );
-	        
-	        if (is_array($all_themes) && !empty($all_themes)) {
-	            $current_theme = get_current_theme();
-	            
-	            $br_a = 0;
-	            $br_i = 0;
-	            foreach ($all_themes as $theme_name => $theme) {
-	                if ($current_theme == strip_tags($theme->Name)) {
-	                    $themes['active'][$br_a]['path']       = $theme->Template;
-	                    $themes['active'][$br_a]['name']       = strip_tags($theme->Name);
-						$themes['active'][$br_a]['version']    = $theme->Version;
-	                    $themes['active'][$br_a]['stylesheet'] = $theme->Stylesheet;
-	                    $br_a++;
-	                }
-	                
-	                if ($current_theme != strip_tags($theme->Name)) {
-	                    $themes['inactive'][$br_i]['path']       = $theme->Template;
-	                    $themes['inactive'][$br_i]['name']       = strip_tags($theme->Name);
-						$themes['inactive'][$br_i]['version']    = $theme->Version;
-	                    $themes['inactive'][$br_i]['stylesheet'] = $theme->Stylesheet;
-	                    $br_i++;
-	                }
-	                
-	            }
-	            
-	            if ($search) {
-	                foreach ($themes['active'] as $k => $theme) {
-	                    if (!stristr($theme['name'], $search)) {
-	                        unset($themes['active'][$k]);
-	                    }
-	                }
-	                
-	                foreach ($themes['inactive'] as $k => $theme) {
-	                    if (!stristr($theme['name'], $search)) {
-	                        unset($themes['inactive'][$k]);
-	                    }
-	                }
-	            }
-	        }
-	    }else{
-        $all_themes = get_themes();
-        $themes     = array(
-            'active' => array(),
-            'inactive' => array()
-        );
-        
-        if (is_array($all_themes) && !empty($all_themes)) {
-            $current_theme = get_current_theme();
-            
-            $br_a = 0;
-            $br_i = 0;
-            foreach ($all_themes as $theme_name => $theme) {
-                if ($current_theme == $theme_name) {
-                    $themes['active'][$br_a]['path']       = $theme['Template'];
-                    $themes['active'][$br_a]['name']       = strip_tags($theme['Name']);
-					$themes['active'][$br_a]['version']    = $theme['Version'];
-                    $themes['active'][$br_a]['stylesheet'] = $theme['Stylesheet'];
-                    $br_a++;
+
+        if (function_exists('wp_get_themes')) {
+            $all_themes = wp_get_themes();
+            $themes     = array(
+                'active' => array(),
+                'inactive' => array()
+            );
+
+            if (is_array($all_themes) && !empty($all_themes)) {
+                $current_theme = $this->get_current_theme_name();
+
+                $br_a = 0;
+                $br_i = 0;
+                foreach ($all_themes as $theme_name => $theme) {
+                    if ($current_theme == strip_tags($theme->Name)) {
+                        $themes['active'][$br_a]['path']       = $theme->Template;
+                        $themes['active'][$br_a]['name']       = strip_tags($theme->Name);
+                        $themes['active'][$br_a]['version']    = $theme->Version;
+                        $themes['active'][$br_a]['stylesheet'] = $theme->Stylesheet;
+                        $br_a++;
+                    }
+
+                    if ($current_theme != strip_tags($theme->Name)) {
+                        $themes['inactive'][$br_i]['path']       = $theme->Template;
+                        $themes['inactive'][$br_i]['name']       = strip_tags($theme->Name);
+                        $themes['inactive'][$br_i]['version']    = $theme->Version;
+                        $themes['inactive'][$br_i]['stylesheet'] = $theme->Stylesheet;
+                        $br_i++;
+                    }
+
                 }
-                
-                if ($current_theme != $theme_name) {
-                    $themes['inactive'][$br_i]['path']       = $theme['Template'];
-                    $themes['inactive'][$br_i]['name']       = strip_tags($theme['Name']);
-					$themes['inactive'][$br_i]['version']    = $theme['Version'];
-                    $themes['inactive'][$br_i]['stylesheet'] = $theme['Stylesheet'];
-                    $br_i++;
-                }
-                
-            }
-            
-            if ($search) {
-                foreach ($themes['active'] as $k => $theme) {
-                    if (!stristr($theme['name'], $search)) {
-                        unset($themes['active'][$k]);
+
+                if ($search) {
+                    foreach ($themes['active'] as $k => $theme) {
+                        if (!stristr($theme['name'], $search)) {
+                            unset($themes['active'][$k]);
+                        }
+                    }
+
+                    foreach ($themes['inactive'] as $k => $theme) {
+                        if (!stristr($theme['name'], $search)) {
+                            unset($themes['inactive'][$k]);
+                        }
                     }
                 }
-                
-                foreach ($themes['inactive'] as $k => $theme) {
-                    if (!stristr($theme['name'], $search)) {
-                        unset($themes['inactive'][$k]);
+            }
+        } else {
+            // older WP versions...
+            $all_themes = get_themes();
+            $themes     = array(
+                'active' => array(),
+                'inactive' => array()
+            );
+
+            if (is_array($all_themes) && !empty($all_themes)) {
+                $current_theme = $this->get_current_theme_name();
+
+                $br_a = 0;
+                $br_i = 0;
+                foreach ($all_themes as $theme_name => $theme) {
+                    if ($current_theme == $theme_name) {
+                        $themes['active'][$br_a]['path']       = $theme['Template'];
+                        $themes['active'][$br_a]['name']       = strip_tags($theme['Name']);
+                        $themes['active'][$br_a]['version']    = $theme['Version'];
+                        $themes['active'][$br_a]['stylesheet'] = $theme['Stylesheet'];
+                        $br_a++;
+                    }
+
+                    if ($current_theme != $theme_name) {
+                        $themes['inactive'][$br_i]['path']       = $theme['Template'];
+                        $themes['inactive'][$br_i]['name']       = strip_tags($theme['Name']);
+                        $themes['inactive'][$br_i]['version']    = $theme['Version'];
+                        $themes['inactive'][$br_i]['stylesheet'] = $theme['Stylesheet'];
+                        $br_i++;
+                    }
+                }
+
+                if ($search) {
+                    foreach ($themes['active'] as $k => $theme) {
+                        if (!stristr($theme['name'], $search)) {
+                            unset($themes['active'][$k]);
+                        }
+                    }
+
+                    foreach ($themes['inactive'] as $k => $theme) {
+                        if (!stristr($theme['name'], $search)) {
+                            unset($themes['inactive'][$k]);
+                        }
                     }
                 }
             }
         }
-        
-	    }
-        
+
         return $themes;
     }
-    
+
     function edit($args)
     {
         extract($args);
@@ -900,7 +913,7 @@ class IWP_MMB_Installer extends IWP_MMB_Core
         }
         return $return;
     }
-    
+
     function edit_plugins($args)
     {
         extract($args);
