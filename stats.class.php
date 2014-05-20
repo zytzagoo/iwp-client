@@ -589,8 +589,7 @@ class IWP_MMB_Stats extends IWP_MMB_Core
 
     public static function set_hit_count($fix_count = false)
     {
-        return true;
-    	global $iwp_mmb_core;
+        global $iwp_mmb_core;
         if ($fix_count || (!is_admin() && !IWP_MMB_Stats::is_bot())) {
             $date           = date('Y-m-d');
             $iwp_client_user_hit_count = (array) get_option('iwp_client_user_hit_count');
