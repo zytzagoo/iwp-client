@@ -344,7 +344,6 @@ class IWP_MMB_Stats extends IWP_MMB_Core
         return $stats;
     }
 
-	
 	function get_plugins_status($stats=array(), $options = array()){
         $installedPlugins = get_plugins( $plugin_folder );
         $activePlugins = get_option( 'active_plugins' );
