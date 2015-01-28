@@ -48,6 +48,14 @@ Credits: [Vladimir Prelovac](http://prelovac.com/vladimir) for his worker plugin
 
 == Changelog ==
 
+= 1.3.10 =
+* Fix: Bug Fix - This version fixes an Open SSL bug that was introduced in v1.3.9. If you updated to v1.3.9 and are encountering connection errors, update the Client Plugin from your WP dashboards. You don't have to re-add the sites to InfiniteWP.
+
+= 1.3.9 =
+* Fix: WP Dashboard jQuery conflict issue. 
+* Fix: Empty reply from server created by not properly configured OpenSSL functions.
+* Fix: Google Drive backup upload timeout issue.
+
 = 1.3.8 =
 * Fix: Fixed a security bug that would allow someone to put WP site into maintenance mode if they know the admin username. 
 
