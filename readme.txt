@@ -2,7 +2,7 @@
 Contributors: infinitewp
 Tags: admin, administration, amazon, api, authentication, automatic, dashboard, dropbox, events, integration, manage, multisite, multiple, notification, performance, s3, security, seo, stats, tracking, infinitewp, updates, backup, restore, iwp, infinite
 Requires at least: 3.0
-Tested up to: 4.1.1
+Tested up to: 4.2.1
 Stable tag: trunk
 
 Install this plugin on unlimited sites and manage them all from a central dashboard.
@@ -47,6 +47,9 @@ Credits: [Vladimir Prelovac](http://prelovac.com/vladimir) for his worker plugin
 5. One-click updates
 
 == Changelog ==
+
+= 1.3.13 =
+* Fix: In certain cases, a multi-call backup of a large DB missed a few table's data.
 
 = 1.3.12 =
 * Fix: In a few servers, readdir() was creating "Empty reply from server" error and in WPEngine it was creating 502 error while taking backup
